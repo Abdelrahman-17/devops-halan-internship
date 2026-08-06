@@ -1,22 +1,17 @@
-# Dockerized Python Web Server
+# Task 1: Dockerize Your Own Web Server
 
-A minimal, secure, and self-contained Python web server built using Flask and packaged with Docker.
-
-## Features
-- **Framework:** Flask 3.0.3
-- **Security:** Runs as a non-root user (`appuser`) inside the container.
-- **Optimization:** Uses `python:3.11-slim` base image to minimize footprint.
+A minimal, secure Python Flask web server containerized with Docker, running under a non-root user.
 
 ---
 
-## Difference Between `.gitignore` and `.dockerignore`
+## 💡 Difference Between `.gitignore` and `.dockerignore`
 
 * **`.gitignore`**: Prevents unwanted or sensitive local files (like `__pycache__`, `.venv`, `.env`) from being committed and tracked in your Git repository.
 * **`.dockerignore`**: Prevents unnecessary host files and folders from being copied into the Docker build context during `docker build`, keeping the final image lean and fast.
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 .
@@ -26,7 +21,7 @@ A minimal, secure, and self-contained Python web server built using Flask and pa
 ├── README.md
 ├── app.py
 └── requirements.txt
-How to Build and Run
+🚀 How to Build and Run
 1. Build the Docker Image
 Bash
 docker build -t my-web-server:v1 .
