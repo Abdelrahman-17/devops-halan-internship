@@ -127,3 +127,17 @@ docker rm -f web-server-app dynamic-web-app postgres-db
 docker network rm app-net
 docker volume rm pgdata
 ```
+---
+
+## ⚙️ Task 3: CI/CD Pipeline & Automated Registry Push
+
+![CI/CD Pipeline](https://github.com/Abdelrahman-17/devops-halan-internship/actions/workflows/ci.yml/badge.svg)
+
+An automated GitHub Actions workflow configured to trigger on Pull Requests and Pushes to the `main` branch.
+
+### Pipeline Workflow Steps:
+1. **Linting:** Code quality and formatting checks using `ruff`.
+2. **Docker Build & Health Check:** Builds the target container locally and verifies the `/health` endpoint response.
+3. **Registry Deployment:** Automatically logs in and pushes the built image to Docker Hub upon merging PRs into `main`.
+
+📌 **Docker Hub Repository:** [`abdelrahmana890/myapp:latest`](https://hub.docker.com/r/abdelrahmana890/myapp)
