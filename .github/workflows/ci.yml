@@ -67,4 +67,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
             docker stop myapp-container || true
             docker rm myapp-container || true
-            docker run -d -p 80:5000 --name myapp-container --restart always ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
+            docker run -d -p 8087:5000 --name myapp-container --restart always ${{ secrets.DOCKERHUB_USERNAME }}/myapp:latest
