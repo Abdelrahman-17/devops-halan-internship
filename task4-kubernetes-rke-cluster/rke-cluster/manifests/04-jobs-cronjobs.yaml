@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: simple-hello-job
+  namespace: app
+spec:
+  template:
+    spec:
+      containers:
+      - name: hello
+        image: busybox
+        command: ["echo", "K8s Practical Task Completed!"]
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: simple-nginx-check
+  namespace: app
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-check
+            image: curlimages/curl
+            command: ["curl", "-s", "http://my-nginx-my-nginx-chart.app.svc.cluster.local"]
+          restartPolicy: OnFailure
