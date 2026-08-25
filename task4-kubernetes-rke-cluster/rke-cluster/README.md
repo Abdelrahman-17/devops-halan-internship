@@ -49,3 +49,17 @@ kubectl get pods -A
 
 # Inspect Longhorn PVCs
 kubectl get pvc -n app
+
+---
+```
+## 🚀 How to Run & Reproduce
+
+### 1. Provision the RKE Cluster
+Run the following commands to initialize the cluster infrastructure and configure local `kubectl` access:
+
+```bash
+rke up --config cluster.yml
+export KUBECONFIG=$(pwd)/kube_config_cluster.yml
+
+kubectl apply -f manifests/
+
