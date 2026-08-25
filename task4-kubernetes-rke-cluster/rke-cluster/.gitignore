@@ -1,0 +1,8 @@
+kube_config_cluster.yml
+cluster.rkestate
+.rkestate/
+.kube/
+*.key
+*.crt
+*.bak
+*.tmp
