@@ -40,66 +40,107 @@ devops-halan-internship/
 
 ---
 
-## 📌 Tasks Detail & Execution
+## 🚀 Tasks Execution & Verification Guide
 
 ### 🟢 Task 1: Dockerize Web Server
-A minimal, secure Python Flask web server running under a restricted non-root user (`appuser`).
 
-* **Run Container:** `docker run -d -p 8085:5000 --name web-server-app my-web-server:v1`
-* **Verify App:** `curl http://localhost:8085`
-* **Verify Non-Root User:** `docker exec -it web-server-app whoami` *(Output: appuser)*
+#### 1. Run / Deploy
+```bash
+cd task1-dockerize-web-server
+docker build -t my-web-server:v1 .
+docker run -d -p 8085:5000 --name web-server-app my-web-server:v1
+```
+
+#### 2. Verification
+```bash
+# Check HTTP response
+curl http://localhost:8085
+
+# Verify container is running under restricted non-root user (appuser)
+docker exec -it web-server-app whoami
+```
 
 ---
 
 ### 🔵 Task 2: Multi-Container Python App with PostgreSQL
-A dynamic web application connected to a PostgreSQL database with persistent volume storage and isolated bridge network.
 
-* **Create Infrastructure:** 
-  * Network: `docker network create app-net`
-  * Volume: `docker volume create pgdata`
-* **Deploy PostgreSQL & App:** 
-  * `docker run -d --name postgres-db --network app-net -v pgdata:/var/lib/postgresql/data -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=namedb postgres:15-alpine`
-  * `docker run -d --name dynamic-web-app --network app-net -p 8086:5000 dynamic-app:v1`
+#### 1. Run / Deploy
+```bash
+cd task2-docker-db
+
+# Create isolated bridge network and persistent volume
+docker network create app-net
+docker volume create pgdata
+
+# Run PostgreSQL container
+docker run -d   --name postgres-db   --network app-net   -v pgdata:/var/lib/postgresql/data   -e POSTGRES_USER=myuser   -e POSTGRES_PASSWORD=mypassword   -e POSTGRES_DB=namedb   postgres:15-alpine
+
+# Build and run Flask application connected to PostgreSQL
+docker build -t dynamic-app:v1 .
+docker run -d --name dynamic-web-app --network app-net -p 8086:5000 dynamic-app:v1
+```
+
+#### 2. Verification
+```bash
+# Initialize schema & insert sample record
+docker exec -it postgres-db psql -U myuser -d namedb -c "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(100));"
+docker exec -it postgres-db psql -U myuser -d namedb -c "INSERT INTO users (name) VALUES ('Abdelrahman Awad');"
+
+# Test dynamic endpoint fetching data from PostgreSQL
+curl http://localhost:8086
+```
 
 ---
 
 ### ⚙️ Task 3: CI/CD Pipeline & Automated Registry Push
 
 
-An automated GitHub Actions workflow configured for code quality and continuous delivery.
+#### 1. Run / Deploy
+Automated via GitHub Actions on every Pull Request and push to `main`.
 
-1. **Linting:** Code formatting checks via `ruff`.
-2. **Build & Health Check:** Verifies container build and `/health` response.
-3. **Deployment:** Pushes image to Docker Hub (`abdelrahmana890/myapp:latest`).
+#### 2. Verification
+* Check pipeline status in the **Actions** tab on GitHub.
+* Verify public Docker image availability:
+  ```bash
+  docker pull abdelrahmana890/myapp:latest
+  ```
 
 ---
 
-### 🔴 Task 4: Enterprise RKE Kubernetes Cluster, GitOps & Observability
+### 🔴 Task 4: Enterprise RKE Cluster, GitOps & Observability
 
-Production-ready Kubernetes setup provisioned via **RKE**, fully automated with **ArgoCD** and monitored with **ELK & Prometheus**.
-
-#### 🔑 Key Features
-* **GitOps Continuous Delivery:** ArgoCD automatically syncs manifests from Git.
-* **Storage & Databases:** Longhorn CSI backing a 3-replica MongoDB database.
-* **Traffic & Scaling:** Nginx Ingress routing combined with Horizontal Pod Autoscaler (HPA).
-* **Observability:** Centralized logging with ELK Stack and metrics export via Prometheus.
-
-#### 🧪 Verification Commands
-
+#### 1. Run / Deploy
 ```bash
-# Verify Application Workloads & Storage
+cd task4-kubernetes-rke-cluster/rke-cluster
+
+# Provision Kubernetes cluster
+rke up --config cluster.yml
+export KUBECONFIG=$(pwd)/kube_config_cluster.yml
+
+# Apply all manifests (Namespaces, PVCs, Ingress, CronJobs, Logging & Monitoring)
+kubectl apply -f manifests/
+```
+
+#### 2. Verification
+```bash
+# Check status of application workloads and ingress
 kubectl get pods,pvc,ingress -n app
 
-# Verify Centralized Logging (ELK)
+# Verify GitOps synchronization status via ArgoCD
+argocd app get my-k8s-apps tree
+
+# Check centralized logging pipeline (ELK Stack)
 kubectl get pods -n logging
 
-# Verify Monitoring Stack (Prometheus)
+# Check cluster metrics monitoring pipeline (Prometheus)
 kubectl get pods -n monitoring
 ```
 
 ---
 
 ## 🧹 Cleanup Guide
+
+To stop and wipe out all local test containers, networks, and storage volumes:
 
 ```bash
 docker rm -f web-server-app dynamic-web-app postgres-db
