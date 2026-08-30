@@ -17,7 +17,7 @@ spec:
       targetPort: 9090
       nodePort: 30909
 ---
-apiVersion: apps/deployment/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
