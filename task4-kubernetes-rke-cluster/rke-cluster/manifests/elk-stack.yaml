@@ -15,7 +15,7 @@ spec:
     - port: 9200
       targetPort: 9200
 ---
-apiVersion: apps/deployment/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elasticsearch
@@ -55,7 +55,7 @@ spec:
       targetPort: 5601
       nodePort: 30601
 ---
-apiVersion: apps/deployment/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kibana
