@@ -4,17 +4,16 @@ This repository contains practical, production-ready DevOps implementation tasks
 
 ---
 
-## 🛠️ Tech Stack & Skills
+## 🛠️ Tech Stack & Overview
 
-* **Containerization:** Docker, Docker Compose
-* **Orchestration:** Kubernetes (RKE v1.30 Engine), Helm
-* **GitOps & Delivery:** ArgoCD, GitHub Actions CI/CD
-* **Storage:** Named Docker Volumes, Longhorn Distributed Storage (CSI)
-* **Observability & Logging:** ELK Stack (Elasticsearch & Kibana), Prometheus Monitoring
-* **Networking & Ingress:** Custom Bridge Networks (DNS Service Discovery), Nginx Ingress Controller
-* **Databases:** PostgreSQL, Stateful MongoDB (3 Replicas)
-* **Backend:** Python (Flask)
-* **Security:** Non-root Container Execution, Sealed Secrets, RBAC Policies
+| Domain | Technologies Used |
+| :--- | :--- |
+| **Containerization & Orchestration** | Docker, Docker Compose, Kubernetes (RKE v1.30), Helm |
+| **GitOps & CI/CD** | ArgoCD, GitHub Actions |
+| **Storage & Persistence** | Docker Named Volumes, Longhorn Distributed Storage (CSI) |
+| **Observability & Logging** | ELK Stack (Elasticsearch & Kibana), Prometheus Monitoring |
+| **Networking & Ingress** | Custom Bridge Networks, Nginx Ingress Controller |
+| **Databases & Backend** | PostgreSQL, Stateful MongoDB (3 Replicas), Python (Flask) |
 
 ---
 
@@ -23,15 +22,7 @@ This repository contains practical, production-ready DevOps implementation tasks
 ```text
 devops-halan-internship/
 ├── task1-dockerize-web-server/       # Task 1: Basic Python Flask Server Containerization
-│   ├── Dockerfile
-│   ├── app.py
-│   ├── requirements.txt
-│   └── README.md
 ├── task2-docker-db/                  # Task 2: Multi-Container Setup with PostgreSQL
-│   ├── Dockerfile
-│   ├── app.py
-│   ├── requirements.txt
-│   └── README.md
 ├── .github/workflows/ci.yml          # Task 3: CI/CD Pipeline & Automated Registry Push
 └── task4-kubernetes-rke-cluster/     # Task 4: Production-Ready RKE Cluster with GitOps & Observability
     └── rke-cluster/
@@ -45,122 +36,73 @@ devops-halan-internship/
             ├── 05-ingress.yaml
             ├── elk-stack.yaml
             └── monitoring.yaml
-🚀 Getting Started & Task Walkthroughs
-📋 Prerequisites
-Docker & Docker Compose installed and running.
+```
 
-Kubernetes CLI (kubectl), RKE CLI, and helm installed.
+---
 
-ArgoCD CLI configured.
+## 📌 Tasks Detail & Execution
 
-Git installed.
+### 🟢 Task 1: Dockerize Web Server
+A minimal, secure Python Flask web server running under a restricted non-root user (`appuser`).
 
-🟢 Task 1: Dockerize Web Server
-A minimal, secure Python Flask web server running under a restricted non-root user (appuser).
+* **Run Container:** `docker run -d -p 8085:5000 --name web-server-app my-web-server:v1`
+* **Verify App:** `curl http://localhost:8085`
+* **Verify Non-Root User:** `docker exec -it web-server-app whoami` *(Output: appuser)*
 
-Steps to Run:
-Navigate to Task 1 Directory:
+---
 
-Bash
-cd task1-dockerize-web-server
-Build the Docker Image:
+### 🔵 Task 2: Multi-Container Python App with PostgreSQL
+A dynamic web application connected to a PostgreSQL database with persistent volume storage and isolated bridge network.
 
-Bash
-docker build -t my-web-server:v1 .
-Run the Container:
+* **Create Infrastructure:** 
+  * Network: `docker network create app-net`
+  * Volume: `docker volume create pgdata`
+* **Deploy PostgreSQL & App:** 
+  * `docker run -d --name postgres-db --network app-net -v pgdata:/var/lib/postgresql/data -e POSTGRES_USER=myuser -e POSTGRES_PASSWORD=mypassword -e POSTGRES_DB=namedb postgres:15-alpine`
+  * `docker run -d --name dynamic-web-app --network app-net -p 8086:5000 dynamic-app:v1`
 
-Bash
-docker run -d -p 8085:5000 --name web-server-app my-web-server:v1
-Verify Application:
+---
 
-Bash
-curl http://localhost:8085
-Verify Security (Non-Root User):
+### ⚙️ Task 3: CI/CD Pipeline & Automated Registry Push
 
-Bash
-docker exec -it web-server-app whoami
-# Output: appuser
-🔵 Task 2: Multi-Container Python App with PostgreSQL
-A dynamic web application connected to a PostgreSQL database with persistent volume storage and custom network isolation.
 
-Steps to Run:
-Create Docker Network & Volume:
+An automated GitHub Actions workflow configured for code quality and continuous delivery.
 
-Bash
-docker network create app-net
-docker volume create pgdata
-Run PostgreSQL Database:
+1. **Linting:** Code formatting checks via `ruff`.
+2. **Build & Health Check:** Verifies container build and `/health` response.
+3. **Deployment:** Pushes image to Docker Hub (`abdelrahmana890/myapp:latest`).
 
-Bash
-docker run -d \
-  --name postgres-db \
-  --network app-net \
-  -v pgdata:/var/lib/postgresql/data \
-  -e POSTGRES_USER=myuser \
-  -e POSTGRES_PASSWORD=mypassword \
-  -e POSTGRES_DB=namedb \
-  postgres:15-alpine
-Initialize Database Table and Seed Data:
+---
 
-Bash
-docker exec -it postgres-db psql -U myuser -d namedb -c "CREATE TABLE users (id SERIAL PRIMARY KEY, name VARCHAR(100));"
-docker exec -it postgres-db psql -U myuser -d namedb -c "INSERT INTO users (name) VALUES ('Abdelrahman Awad');"
-Build and Run Web Server Container:
+### 🔴 Task 4: Enterprise RKE Kubernetes Cluster, GitOps & Observability
 
-Bash
-cd task2-docker-db
-docker build -t dynamic-app:v1 .
-docker run -d --name dynamic-web-app --network app-net -p 8086:5000 dynamic-app:v1
-Verify Application:
+Production-ready Kubernetes setup provisioned via **RKE**, fully automated with **ArgoCD** and monitored with **ELK & Prometheus**.
 
-Bash
-curl http://localhost:8086
-⚙️ Task 3: CI/CD Pipeline & Automated Registry Push
-An automated GitHub Actions workflow configured to trigger on Pull Requests and Pushes to the main branch.
+#### 🔑 Key Features
+* **GitOps Continuous Delivery:** ArgoCD automatically syncs manifests from Git.
+* **Storage & Databases:** Longhorn CSI backing a 3-replica MongoDB database.
+* **Traffic & Scaling:** Nginx Ingress routing combined with Horizontal Pod Autoscaler (HPA).
+* **Observability:** Centralized logging with ELK Stack and metrics export via Prometheus.
 
-Pipeline Workflow Steps:
-Linting: Code quality and formatting checks using ruff.
+#### 🧪 Verification Commands
 
-Docker Build & Health Check: Builds the target container locally and verifies the /health endpoint response.
-
-Registry Deployment: Automatically logs in and pushes the built image to Docker Hub upon merging PRs into main.
-
-📌 Docker Hub Repository: abdelrahmana890/myapp:latest
-
-🔴 Task 4: Production-Ready RKE Kubernetes Cluster, GitOps & Observability
-An enterprise-grade Kubernetes cluster provisioned via RKE (v1.30), featuring automated GitOps continuous delivery with ArgoCD, high-availability persistent storage, auto-scaling, and central observability.
-
-Architectural Highlights:
-GitOps Continuous Delivery: ArgoCD continuously monitors and synchronizes cluster manifests directly from Git.
-
-Persistent Storage & HA Databases: Deployed Longhorn CSI for distributed volume management, backing a 3-replica MongoDB cluster deployed via Helm.
-
-Traffic Management & Scaling: Configured Nginx Ingress Controller for domain routing and Horizontal Pod Autoscaler (HPA) for dynamic workload response.
-
-Automated Batch Tasks: Deployed Kubernetes Jobs & CronJobs for periodic health checks and maintenance.
-
-Observability Pipeline: Centralized logging with ELK Stack (Elasticsearch & Kibana) and cluster metrics exporter with Prometheus.
-
-Steps to Verify Workloads:
-Bash
-# Verify Application & Ingress Resources
+```bash
+# Verify Application Workloads & Storage
 kubectl get pods,pvc,ingress -n app
 
-# Verify Centralized Logging Stack (ELK)
+# Verify Centralized Logging (ELK)
 kubectl get pods -n logging
 
-# Verify Metrics Monitoring Stack
+# Verify Monitoring Stack (Prometheus)
 kubectl get pods -n monitoring
+```
 
-# Check ArgoCD Deployment Tree
-argocd app get my-k8s-apps tree
-🧹 Cleanup Guide
-To stop and remove all local containers, networks, and resources:
+---
 
-Bash
-# Stop and remove Task 1 & Task 2 Containers
+## 🧹 Cleanup Guide
+
+```bash
 docker rm -f web-server-app dynamic-web-app postgres-db
-
-# Remove Docker Network & Volume
 docker network rm app-net
 docker volume rm pgdata
+```
